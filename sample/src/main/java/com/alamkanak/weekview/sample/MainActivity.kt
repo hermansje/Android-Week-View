@@ -12,22 +12,21 @@ import android.view.View
  */
 class MainActivity : AppCompatActivity() {
 
-    protected fun onCreate(savedInstanceState: Bundle) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById(R.id.buttonBasic).setOnClickListener(object : View.OnClickListener() {
-            fun onClick(v: View) {
-                val intent = Intent(this@MainActivity, BasicActivity::class.java)
-                startActivity(intent)
-            }
-        })
+        findViewById<View>(R.id.buttonBasic).setOnClickListener {
+            val intent = Intent(this@MainActivity, BasicActivity::class.java)
+            startActivity(intent)
+        }
 
-        findViewById(R.id.buttonAsynchronous).setOnClickListener(object : View.OnClickListener() {
-            fun onClick(v: View) {
-                val intent = Intent(this@MainActivity, AsynchronousActivity::class.java)
-                startActivity(intent)
-            }
-        })
+        findViewById<View>(R.id.buttonAsynchronous).setOnClickListener {
+            val intent = Intent(this@MainActivity, AsynchronousActivity::class.java)
+            startActivity(intent)
+        }
+        findViewById<View>(R.id.buttonWholeViewSnap).setOnClickListener {
+            startActivity(Intent(this@MainActivity, WholeViewSnappingActivity::class.java))
+        }
     }
 }

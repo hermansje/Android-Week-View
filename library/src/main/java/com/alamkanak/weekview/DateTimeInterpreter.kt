@@ -1,6 +1,6 @@
 package com.alamkanak.weekview
 
-import java.util.Calendar
+import java.util.*
 
 /**
  * Created by Raquib on 1/6/2015.

@@ -1,6 +1,6 @@
 package com.alamkanak.weekview
 
-import java.util.Calendar
+import java.util.*
 
 interface WeekViewLoader {
     /**
@@ -21,5 +21,5 @@ interface WeekViewLoader {
      * @param periodIndex the period to load
      * @return A list with the events of this period
      */
-    fun onLoad(periodIndex: Int): List<WeekViewEvent>
+    fun onLoad(periodIndex: Int): List<WeekViewEvent>?
 }

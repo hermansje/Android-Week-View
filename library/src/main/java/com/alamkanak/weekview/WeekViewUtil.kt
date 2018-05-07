@@ -1,6 +1,6 @@
 package com.alamkanak.weekview
 
-import java.util.Calendar
+import java.util.*
 
 /**
  * Created by jesse on 6/02/2016.
@@ -21,6 +21,7 @@ object WeekViewUtil {
      * @param dateTwo The second date.     *
      * @return Whether the dates are on the same day.
      */
+    @JvmStatic
     fun isSameDay(dateOne: Calendar, dateTwo: Calendar): Boolean {
         return dateOne.get(Calendar.YEAR) == dateTwo.get(Calendar.YEAR) && dateOne.get(Calendar.DAY_OF_YEAR) == dateTwo.get(Calendar.DAY_OF_YEAR)
     }
@@ -30,6 +31,7 @@ object WeekViewUtil {
      *
      * @return the calendar instance
      */
+    @JvmStatic
     fun today(): Calendar {
         val today = Calendar.getInstance()
         today.set(Calendar.HOUR_OF_DAY, 0)
@@ -46,6 +48,7 @@ object WeekViewUtil {
      * @param dateTwo The second day.
      * @return Whether the dates are on the same day and hour.
      */
+    @JvmStatic
     fun isSameDayAndHour(dateOne: Calendar, dateTwo: Calendar?): Boolean {
 
         return if (dateTwo != null) {
@@ -60,6 +63,7 @@ object WeekViewUtil {
      * @param dateTwo the second date
      * @return the amount of days between dateTwo and dateOne
      */
+    @JvmStatic
     fun daysBetween(dateOne: Calendar, dateTwo: Calendar): Int {
         return ((dateTwo.timeInMillis + dateTwo.timeZone.getOffset(dateTwo.timeInMillis)) / (1000 * 60 * 60 * 24) - (dateOne.timeInMillis + dateOne.timeZone.getOffset(dateOne.timeInMillis)) / (1000 * 60 * 60 * 24)).toInt()
     }
@@ -69,6 +73,7 @@ object WeekViewUtil {
     * @param date
     * @return amount of minutes in day before time
     */
+    @JvmStatic
     fun getPassedMinutesInDay(date: Calendar): Int {
         return getPassedMinutesInDay(date.get(Calendar.HOUR_OF_DAY), date.get(Calendar.MINUTE))
     }
@@ -80,6 +85,7 @@ object WeekViewUtil {
      * @param minute
      * @return amount of minutes in the given hours and minutes
      */
+    @JvmStatic
     fun getPassedMinutesInDay(hour: Int, minute: Int): Int {
         return hour * 60 + minute
     }

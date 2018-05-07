@@ -1,18 +1,14 @@
 package com.alamkanak.weekview.sample
 
 import android.widget.Toast
-
 import com.alamkanak.weekview.WeekViewEvent
 import com.alamkanak.weekview.sample.apiclient.Event
 import com.alamkanak.weekview.sample.apiclient.MyJsonService
-
-import java.util.ArrayList
-import java.util.Calendar
-
 import retrofit.Callback
 import retrofit.RestAdapter
 import retrofit.RetrofitError
 import retrofit.client.Response
+import java.util.*
 
 /**
  * An example of how events can be fetched from network and be displayed on the week view.
@@ -59,7 +55,7 @@ class AsynchronousActivity : BaseActivity(), Callback<List<Event>> {
         return event.startTime!!.get(Calendar.YEAR) == year && event.startTime!!.get(Calendar.MONTH) == month - 1 || event.endTime!!.get(Calendar.YEAR) == year && event.endTime!!.get(Calendar.MONTH) == month - 1
     }
 
-    fun success(events: List<Event>, response: Response) {
+    override fun success(events: List<Event>, response: Response) {
         this.events.clear()
         for (event in events) {
             this.events.add(event.toWeekViewEvent())
@@ -67,7 +63,7 @@ class AsynchronousActivity : BaseActivity(), Callback<List<Event>> {
         weekView.notifyDatasetChanged()
     }
 
-    fun failure(error: RetrofitError) {
+    override fun failure(error: RetrofitError) {
         error.printStackTrace()
         Toast.makeText(this, R.string.async_error, Toast.LENGTH_SHORT).show()
     }
