@@ -31,15 +31,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     //region fields and properties
     private var mHomeDate: Calendar? = null
     /**
-     * Get the earliest day that can be displayed. Will return null if no minimum date is set.
-     *
-     * @return the earliest day that can be displayed, null if no minimum date set
-     */
-    /**
-     * Set the earliest day that can be displayed. This will determine the left horizontal scroll
-     * limit. The default value is null (allow unlimited scrolling into the past).
-     *
-     * @param minDate The new minimum date (pass null for no minimum)
+     *  the earliest day that can be displayed.  null if no minimum date is set.
      */
     var minDate: Calendar? = null
         set(value) {
@@ -62,15 +54,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             invalidate()
         }
     /**
-     * Get the latest day that can be displayed. Will return null if no maximum date is set.
-     *
-     * @return the latest day the can be displayed, null if no max date set
-     */
-    /**
-     * Set the latest day that can be displayed. This will determine the right horizontal scroll
-     * limit. The default value is null (allow unlimited scrolling in to the future).
-     *
-     * @param maxDate The new maximum date (pass null for no maximum)
+     *  the latest day that can be displayed. null if no maximum date is set.
      */
     var maxDate: Calendar? = null
         set(value) {
@@ -127,16 +111,12 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private var mScaleDetector: ScaleGestureDetector? = null
     private var mIsZooming: Boolean = false
     /**
-     * Returns the first visible day in the week view.
-     *
-     * @return The first visible day in the week view.
+     *  the first visible day in the week view.
      */
     var firstVisibleDay: Calendar? = null
         private set
     /**
-     * Returns the last visible day in the week view.
-     *
-     * @return The last visible day in the week view.
+     *  the last visible day in the week view.
      */
     var lastVisibleDay: Calendar? = null
         private set
@@ -166,79 +146,32 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private var mIsFirstDraw = true
     private var mAreDimensionsInvalid = true
     /**
-     * Get the scrolling speed factor in horizontal direction.
-     *
-     * @return The speed factor in horizontal direction.
-     */
-    /**
-     * Sets the speed for horizontal scrolling.
-     *
-     * @param xScrollingSpeed The new horizontal scrolling speed.
+     *  the scrolling speed factor in horizontal direction.
      */
     var xScrollingSpeed = 1f
     private var mScrollToDay: Calendar? = null
     private var mScrollToHour = -1.0
     /**
-     * Set corner radius for event rect.
-     *
-     * @param eventCornerRadius the radius in px.
+     *  corner radius for event rect (in px)
      */
     var eventCornerRadius = 0
     /**
-     * Get whether the week view should fling horizontally.
-     *
-     * @return True if the week view has horizontal fling enabled.
-     */
-    /**
-     * Set whether the week view should fling horizontally.
-     *
-     * @param enabled whether the week view should fling horizontally
+     *  whether the week view should fling horizontally.
      */
     var isHorizontalFlingEnabled = true
     /**
-     * Get whether the week view should fling vertically.
-     *
-     * @return True if the week view has vertical fling enabled.
-     */
-    /**
-     * Set whether the week view should fling vertically.
-     *
-     * @param enabled whether the week view should fling vertically
+     *  whether the week view should fling vertically.
      */
     var isVerticalFlingEnabled = true
     /**
-     * Get the height of AllDay-events.
-     *
-     * @return Height of AllDay-events.
-     */
-    /**
-     * Set the height of AllDay-events.
-     *
-     * @param height the new height of AllDay-events
+     *  the height of AllDay-events.
      */
     var allDayEventHeight = 100
-    /*
-     * Is focus point enabled
-     * @return fixed focus point enabled?
-     */
     /**
-     * Enable zoom focus point
      * If you set this to false the `zoomFocusPoint` won't take effect any more while zooming.
      * The zoom will always be focused at the center of your gesture.
-     *
-     * @param zoomFocusPointEnabled whether the zoomFocusPoint is enabled
      */
     var isZoomFocusPointEnabled = true
-    /**
-     * Get scroll duration
-     *
-     * @return scroll duration
-     */
-    /**
-     * Set the scroll duration
-     *
-     * @param scrollDuration the new scrollDuraction
-     */
     var scrollDuration = 250
     var timeColumnResolution = 60
     var typeface: Typeface? = Typeface.DEFAULT_BOLD
@@ -278,18 +211,9 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     var eventClickListener: EventClickListener? = null
     var eventLongPressListener: EventLongPressListener? = null
     /**
-     * Get event loader in the week view. Event loaders define the  interval after which the events
+     *  event loader in the week view. Event loaders define the  interval after which the events
      * are loaded in week view. For a MonthLoader events are loaded for every month. You can define
      * your custom event loader by extending WeekViewLoader.
-     *
-     * @return The event loader.
-     */
-    /**
-     * Set event loader in the week view. For example, a MonthLoader. Event loaders define the
-     * interval after which the events are loaded in week view. For a MonthLoader events are loaded
-     * for every month. You can define your custom event loader by extending WeekViewLoader.
-     *
-     * @param loader The event loader.
      */
     var weekViewLoader: WeekViewLoader? = null
     var emptyViewClickListener: EmptyViewClickListener? = null
@@ -577,7 +501,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private val minHourOffset: Int
         get() = hourHeight * mMinTime
 
-    private// Calculate top.
+    private
     val eventsTop: Float
         get() = mCurrentOrigin.y + mHeaderHeight + (weekDaysHeaderRowPadding * 2).toFloat() + spaceBelowAllDayEvents + mTimeTextHeight / 2 + spaceBetweenWeekDaysAndAllDayEvents.toFloat() - minHourOffset
 
@@ -595,16 +519,8 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         }
 
     /**
-     * Get the interpreter which provides the text to show in the header column and the header row.
-     *
-     * @return The date, time interpreter.
+     *  the interpreter which provides the text to show in the header column and the header row.
      */
-    /**
-     * Set the interpreter which provides the text to show in the header column and the header row.
-     *
-     * @param dateTimeInterpreter The date, time interpreter.
-     */
-    // Refresh time column width.
     var dateTimeInterpreter: DateTimeInterpreter
         get() {
             if (mDateTimeInterpreter == null) {
@@ -638,23 +554,14 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
 
     /**
-     * Get the real number of visible days
+     *  the real number of visible days
      * If the amount of days between max date and min date is smaller, that value is returned
-     *
-     * @return The real number of visible days
      */
     val realNumberOfVisibleDays: Int
         get() = if (minDate == null || maxDate == null) numberOfVisibleDays else Math.min(numberOfVisibleDays, daysBetween(minDate!!, maxDate!!) + 1)
 
     /**
-     * Get the number of visible days
-     *
-     * @return The set number of visible days.
-     */
-    /**
-     * Set the number of visible days in a week.
-     *
-     * @param numberOfVisibleDays The number of visible days in a week.
+     *  the number of visible days in a week.
      */
     var numberOfVisibleDays: Int = 3
         set(value) {
@@ -684,15 +591,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         }
 
     /**
-     * Set the first day of the week. First day of the week is used only when the week view is first
+     *  the first day of the week. First day of the week is used only when the week view is first
      * drawn. It does not of any effect after user starts scrolling horizontally.
-     *
      *
      * **Note:** This method will only work if the week view is set to display more than 6 days at
      * once.
      *
-     *
-     * @param firstDayOfWeek The supported values are [java.util.Calendar.SUNDAY],
+     * supported values are [java.util.Calendar.SUNDAY],
      * [java.util.Calendar.MONDAY], [java.util.Calendar.TUESDAY],
      * [java.util.Calendar.WEDNESDAY], [java.util.Calendar.THURSDAY],
      * [java.util.Calendar.FRIDAY].
