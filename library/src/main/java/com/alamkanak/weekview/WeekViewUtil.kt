@@ -1,11 +1,15 @@
-package com.alamkanak.weekview;
+package com.alamkanak.weekview
 
-import java.util.Calendar;
+import android.content.Context
+import android.os.Build
+import android.text.format.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Created by jesse on 6/02/2016.
  */
-public class WeekViewUtil {
+object WeekViewUtil {
 
 
     /////////////////////////////////////////////////////////////////
@@ -21,8 +25,9 @@ public class WeekViewUtil {
      * @param dateTwo The second date.     *
      * @return Whether the dates are on the same day.
      */
-    public static boolean isSameDay(Calendar dateOne, Calendar dateTwo) {
-        return dateOne.get(Calendar.YEAR) == dateTwo.get(Calendar.YEAR) && dateOne.get(Calendar.DAY_OF_YEAR) == dateTwo.get(Calendar.DAY_OF_YEAR);
+    @JvmStatic
+    fun isSameDay(dateOne: Calendar, dateTwo: Calendar): Boolean {
+        return dateOne.get(Calendar.YEAR) == dateTwo.get(Calendar.YEAR) && dateOne.get(Calendar.DAY_OF_YEAR) == dateTwo.get(Calendar.DAY_OF_YEAR)
     }
 
     /**
@@ -30,13 +35,14 @@ public class WeekViewUtil {
      *
      * @return the calendar instance
      */
-    public static Calendar today() {
-        Calendar today = Calendar.getInstance();
-        today.set(Calendar.HOUR_OF_DAY, 0);
-        today.set(Calendar.MINUTE, 0);
-        today.set(Calendar.SECOND, 0);
-        today.set(Calendar.MILLISECOND, 0);
-        return today;
+    @JvmStatic
+    fun today(): Calendar {
+        val today = Calendar.getInstance()
+        today.set(Calendar.HOUR_OF_DAY, 0)
+        today.set(Calendar.MINUTE, 0)
+        today.set(Calendar.SECOND, 0)
+        today.set(Calendar.MILLISECOND, 0)
+        return today
     }
 
     /**
@@ -46,12 +52,11 @@ public class WeekViewUtil {
      * @param dateTwo The second day.
      * @return Whether the dates are on the same day and hour.
      */
-    public static boolean isSameDayAndHour(Calendar dateOne, Calendar dateTwo) {
-
-        if (dateTwo != null) {
-            return isSameDay(dateOne, dateTwo) && dateOne.get(Calendar.HOUR_OF_DAY) == dateTwo.get(Calendar.HOUR_OF_DAY);
-        }
-        return false;
+    @JvmStatic
+    fun isSameDayAndHour(dateOne: Calendar, dateTwo: Calendar?): Boolean {
+        return if (dateTwo != null) {
+            isSameDay(dateOne, dateTwo) && dateOne.get(Calendar.HOUR_OF_DAY) == dateTwo.get(Calendar.HOUR_OF_DAY)
+        } else false
     }
 
     /**
@@ -61,9 +66,9 @@ public class WeekViewUtil {
      * @param dateTwo the second date
      * @return the amount of days between dateTwo and dateOne
      */
-    public static int daysBetween(Calendar dateOne, Calendar dateTwo) {
-        return (int) (((dateTwo.getTimeInMillis() + dateTwo.getTimeZone().getOffset(dateTwo.getTimeInMillis())) / (1000 * 60 * 60 * 24)) -
-                ((dateOne.getTimeInMillis() + dateOne.getTimeZone().getOffset(dateOne.getTimeInMillis())) / (1000 * 60 * 60 * 24)));
+    @JvmStatic
+    fun daysBetween(dateOne: Calendar, dateTwo: Calendar): Int {
+        return ((dateTwo.timeInMillis + dateTwo.timeZone.getOffset(dateTwo.timeInMillis)) / (1000 * 60 * 60 * 24) - (dateOne.timeInMillis + dateOne.timeZone.getOffset(dateOne.timeInMillis)) / (1000 * 60 * 60 * 24)).toInt()
     }
 
     /*
@@ -71,8 +76,9 @@ public class WeekViewUtil {
     * @param date
     * @return amount of minutes in day before time
     */
-    public static int getPassedMinutesInDay(Calendar date) {
-        return getPassedMinutesInDay(date.get(Calendar.HOUR_OF_DAY), date.get(Calendar.MINUTE));
+    @JvmStatic
+    fun getPassedMinutesInDay(date: Calendar): Int {
+        return getPassedMinutesInDay(date.get(Calendar.HOUR_OF_DAY), date.get(Calendar.MINUTE))
     }
 
     /**
@@ -82,7 +88,46 @@ public class WeekViewUtil {
      * @param minute
      * @return amount of minutes in the given hours and minutes
      */
-    public static int getPassedMinutesInDay(int hour, int minute) {
-        return hour * 60 + minute;
+    @JvmStatic
+    fun getPassedMinutesInDay(hour: Int, minute: Int): Int {
+        return hour * 60 + minute
+    }
+
+    /**returns a date format of dayOfWeek+day&month, based on the current locale.
+     * This is important, as the format is different in many countries. Especially the numeric part that can be different : "d/M", "M/d", "d-M", "M-d" ,...*/
+    @JvmStatic
+    fun getWeekdayWithNumericDayAndMonthFormat(context: Context, shortDate: Boolean): SimpleDateFormat {
+        val weekDayFormat = if (shortDate) "EEEEE" else "EEE"
+        val defaultDateFormatPattern = "$weekDayFormat d/M"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            val locale = Locale.getDefault()
+            var bestDateTimePattern = DateFormat.getBestDateTimePattern(locale, defaultDateFormatPattern)
+            //workaround fix for this issue: https://issuetracker.google.com/issues/79311044
+            //TODO if there is a better API that doesn't require this workaround, use it. Be sure to check vs all locales, as done here: https://issuetracker.google.com/issues/37044127
+            bestDateTimePattern = bestDateTimePattern.replace("d+".toRegex(), "d").replace("M+".toRegex(), "M")
+            bestDateTimePattern = bestDateTimePattern.replace("E+".toRegex(), weekDayFormat)
+            return SimpleDateFormat(bestDateTimePattern, locale)
+        }
+        try {
+            val dateFormatOrder = DateFormat.getDateFormatOrder(context)
+            if (dateFormatOrder.isEmpty())
+                return SimpleDateFormat(defaultDateFormatPattern, Locale.getDefault())
+            val sb = StringBuilder()
+            for (i in dateFormatOrder.indices) {
+                val c = dateFormatOrder[i]
+                if (Character.toLowerCase(c) == 'y')
+                    continue
+                if (sb.isNotEmpty())
+                    sb.append('/')
+                when (Character.toLowerCase(c)) {
+                    'm' -> sb.append("M")
+                    'd' -> sb.append("d")
+                }
+            }
+            val dateFormatString = sb.toString()
+            return SimpleDateFormat("$weekDayFormat $dateFormatString", Locale.getDefault())
+        } catch (e: Exception) {
+            return SimpleDateFormat(defaultDateFormatPattern, Locale.getDefault())
+        }
     }
 }

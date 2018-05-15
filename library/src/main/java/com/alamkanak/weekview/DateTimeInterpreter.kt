@@ -1,12 +1,12 @@
-package com.alamkanak.weekview;
+package com.alamkanak.weekview
 
-import java.util.Calendar;
+import java.util.*
 
 /**
  * Created by Raquib on 1/6/2015.
  */
-public interface DateTimeInterpreter {
-    public String interpretDate(Calendar date);
+interface DateTimeInterpreter {
+    fun interpretDate(date: Calendar): String
 
-    public String interpretTime(int hour, int minutes);
+    fun interpretTime(hour: Int, minutes: Int): String
 }

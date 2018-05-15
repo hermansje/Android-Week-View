@@ -1,27 +1,19 @@
-package com.alamkanak.weekview.sample;
+package com.alamkanak.weekview.sample
 
-import android.content.ClipData;
-import android.graphics.RectF;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
-import android.util.TypedValue;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.alamkanak.weekview.DateTimeInterpreter;
-import com.alamkanak.weekview.MonthLoader;
-import com.alamkanak.weekview.WeekView;
-import com.alamkanak.weekview.WeekViewEvent;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
+import android.content.ClipData
+import android.graphics.RectF
+import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
+import android.text.format.DateFormat
+import android.util.TypedValue
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
+import com.alamkanak.weekview.*
+import kotlinx.android.synthetic.main.activity_base.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * This is a base activity which contains week view and all the codes necessary to initialize the
@@ -29,46 +21,38 @@ import java.util.Locale;
  * Created by Raquib-ul-Alam Kanak on 1/3/2014.
  * Website: http://alamkanak.github.io
  */
-public abstract class BaseActivity extends AppCompatActivity implements WeekView.EventClickListener, MonthLoader.MonthChangeListener, WeekView.EventLongPressListener, WeekView.EmptyViewLongPressListener, WeekView.EmptyViewClickListener, WeekView.AddEventClickListener, WeekView.DropListener {
-    private static final int TYPE_DAY_VIEW = 1;
-    private static final int TYPE_THREE_DAY_VIEW = 2;
-    private static final int TYPE_WEEK_VIEW = 3;
-    private int mWeekViewType = TYPE_THREE_DAY_VIEW;
-    protected WeekView mWeekView;
+abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, MonthLoader.MonthChangeListener, WeekView.EventLongPressListener, WeekView.EmptyViewLongPressListener, WeekView.EmptyViewClickListener, WeekView.AddEventClickListener, WeekView.DropListener {
+    private var mWeekViewType = TYPE_THREE_DAY_VIEW
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_base);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_base)
 
-        TextView draggableView = (TextView) findViewById(R.id.draggable_view);
-        draggableView.setOnLongClickListener(new DragTapListener());
-
+        draggable_view.setOnLongClickListener(DragTapListener())
 
         // Get a reference for the week view in the layout.
-        mWeekView = (WeekView) findViewById(R.id.weekView);
 
         // Show a toast message about the touched event.
-        mWeekView.setOnEventClickListener(this);
+        weekView.eventClickListener = this
 
         // The week view has infinite scrolling horizontally. We have to provide the events of a
         // month every time the month changes on the week view.
-        mWeekView.setMonthChangeListener(this);
+        weekView.monthChangeListener = this
 
         // Set long press listener for events.
-        mWeekView.setEventLongPressListener(this);
+        weekView.eventLongPressListener = this
 
         // Set long press listener for empty view
-        mWeekView.setEmptyViewLongPressListener(this);
+        weekView.emptyViewLongPressListener = this
 
         // Set EmptyView Click Listener
-        mWeekView.setEmptyViewClickListener(this);
+        weekView.emptyViewClickListener = this
 
         // Set AddEvent Click Listener
-        mWeekView.setAddEventClickListener(this);
+        weekView.addEventClickListener = this
 
         // Set Drag and Drop Listener
-        mWeekView.setDropListener(this);
+        weekView.dropListener = this
 
         // Set minDate
         /*Calendar minDate = Calendar.getInstance();
@@ -94,12 +78,11 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
 
         // Set up a date time interpreter to interpret how the date and time will be formatted in
         // the week view. This is optional.
-        setupDateTimeInterpreter(false);
+        setupDateTimeInterpreter(false)
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    override fun onResume() {
+        super.onResume()
         /*mWeekView.setShowDistinctPastFutureColor(true);
         mWeekView.setShowDistinctWeekendColor(true);
         mWeekView.setFutureBackgroundColor(Color.rgb(24,85,96));
@@ -109,70 +92,81 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         */
     }
 
-    private final class DragTapListener implements View.OnLongClickListener {
-        @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
-        @Override
-        public boolean onLongClick(View v) {
-            ClipData data = ClipData.newPlainText("", "");
-            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(v);
-            v.startDrag(data, shadowBuilder, v, 0);
-            return true;
+    private inner class DragTapListener : View.OnLongClickListener {
+        override fun onLongClick(v: View): Boolean {
+            val data = ClipData.newPlainText("", "")
+            val shadowBuilder = View.DragShadowBuilder(v)
+            v.startDrag(data, shadowBuilder, v, 0)
+            return true
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        setupDateTimeInterpreter(id == R.id.action_week_view);
-        switch (id) {
-            case R.id.action_today:
-                mWeekView.goToToday();
-                return true;
-            case R.id.action_day_view:
-                if (mWeekViewType != TYPE_DAY_VIEW) {
-                    item.setChecked(!item.isChecked());
-                    mWeekViewType = TYPE_DAY_VIEW;
-                    mWeekView.setNumberOfVisibleDays(1);
-
-                    // Lets change some dimensions to best fit the view.
-                    mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
-                    mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
-                    mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+        when (id) {
+            R.id.action_today -> {
+                weekView.goToToday()
+                return true
+            }
+            R.id.action_day_view -> {
+                if (!item.isChecked) {
+                    item.isChecked = true
+                    setDayViewType(TYPE_DAY_VIEW)
                 }
-                return true;
-            case R.id.action_three_day_view:
-                if (mWeekViewType != TYPE_THREE_DAY_VIEW) {
-                    item.setChecked(!item.isChecked());
-                    mWeekViewType = TYPE_THREE_DAY_VIEW;
-                    mWeekView.setNumberOfVisibleDays(3);
-
-                    // Lets change some dimensions to best fit the view.
-                    mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
-                    mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
-                    mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
+                return true
+            }
+            R.id.action_three_day_view -> {
+                if (!item.isChecked) {
+                    item.isChecked = true
+                    setDayViewType(TYPE_THREE_DAY_VIEW)
                 }
-                return true;
-            case R.id.action_week_view:
-                if (mWeekViewType != TYPE_WEEK_VIEW) {
-                    item.setChecked(!item.isChecked());
-                    mWeekViewType = TYPE_WEEK_VIEW;
-                    mWeekView.setNumberOfVisibleDays(7);
-
-                    // Lets change some dimensions to best fit the view.
-                    mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
-                    mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
-                    mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
+                return true
+            }
+            R.id.action_week_view -> {
+                if (!item.isChecked) {
+                    item.isChecked = true
+                    setDayViewType(TYPE_WEEK_VIEW)
                 }
-                return true;
+                return true
+            }
         }
+        return super.onOptionsItemSelected(item)
+    }
 
-        return super.onOptionsItemSelected(item);
+    fun setDayViewType(dayViewType: Int) {
+        setupDateTimeInterpreter(dayViewType == TYPE_WEEK_VIEW)
+
+        when (dayViewType) {
+            TYPE_DAY_VIEW -> {
+                mWeekViewType = TYPE_DAY_VIEW
+                weekView.numberOfVisibleDays = 1
+                // Lets change some dimensions to best fit the view.
+                weekView.columnGap = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
+                weekView.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics)
+                weekView.eventTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics)
+            }
+            TYPE_THREE_DAY_VIEW -> {
+                mWeekViewType = TYPE_THREE_DAY_VIEW
+                weekView.numberOfVisibleDays = 3
+                // Lets change some dimensions to best fit the view.
+                weekView.columnGap = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
+                weekView.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics)
+                weekView.eventTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics)
+            }
+            TYPE_WEEK_VIEW -> {
+                mWeekViewType = TYPE_WEEK_VIEW
+                weekView.numberOfVisibleDays = 7
+                // Lets change some dimensions to best fit the view.
+                weekView.columnGap = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics).toInt()
+                weekView.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, resources.displayMetrics)
+                weekView.eventTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, resources.displayMetrics)
+            }
+        }
     }
 
     /**
@@ -181,78 +175,64 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
      *
      * @param shortDate True if the date values should be short.
      */
-    private void setupDateTimeInterpreter(final boolean shortDate) {
-        mWeekView.setDateTimeInterpreter(new DateTimeInterpreter() {
-            @Override
-            public String interpretDate(Calendar date) {
-                SimpleDateFormat weekdayNameFormat = new SimpleDateFormat("EEE", Locale.getDefault());
-                String weekday = weekdayNameFormat.format(date.getTime());
-                SimpleDateFormat format = new SimpleDateFormat(" M/d", Locale.getDefault());
-
-                // All android api level do not have a standard way of getting the first letter of
-                // the week day name. Hence we get the first char programmatically.
-                // Details: http://stackoverflow.com/questions/16959502/get-one-letter-abbreviation-of-week-day-of-a-date-in-java#answer-16959657
-                if (shortDate)
-                    weekday = String.valueOf(weekday.charAt(0));
-                return weekday.toUpperCase() + format.format(date.getTime());
+    protected open fun setupDateTimeInterpreter(shortDate: Boolean) {
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val timeFormat = DateFormat.getTimeFormat(this@BaseActivity)
+                ?: SimpleDateFormat("HH:mm", Locale.getDefault())
+        val shortDateFormat = WeekViewUtil.getWeekdayWithNumericDayAndMonthFormat(this@BaseActivity, true)
+        val normalDateFormat = WeekViewUtil.getWeekdayWithNumericDayAndMonthFormat(this@BaseActivity, false)
+        weekView.dateTimeInterpreter = object : DateTimeInterpreter {
+            override fun interpretTime(hour: Int, minutes: Int): String {
+                calendar.set(Calendar.HOUR_OF_DAY, hour)
+                calendar.set(Calendar.MINUTE, minutes)
+                return timeFormat.format(calendar.time)
             }
 
-            @Override
-            public String interpretTime(int hour, int minutes) {
-                String strMinutes = String.format("%02d", minutes);
-                if (hour > 11) {
-                    return (hour - 12) + ":" + strMinutes + " PM";
-                } else {
-                    if (hour == 0) {
-                        return "12:" + strMinutes + " AM";
-                    } else {
-                        return hour + ":" + strMinutes + " AM";
-                    }
-                }
+            override fun interpretDate(date: Calendar): String {
+                return if (shortDate) shortDateFormat.format(date.time) else normalDateFormat.format(date.time)
             }
-        });
+        }
     }
 
-    protected String getEventTitle(Calendar time) {
-        return String.format("Event of %02d:%02d %s/%d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.MONTH) + 1, time.get(Calendar.DAY_OF_MONTH));
+    protected fun getEventTitle(time: Calendar): String {
+        return String.format("Event of %02d:%02d %s/%d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.MONTH) + 1, time.get(Calendar.DAY_OF_MONTH))
     }
 
-    @Override
-    public void onEventClick(WeekViewEvent event, RectF eventRect) {
-        Toast.makeText(this, "Clicked " + event.getName(), Toast.LENGTH_SHORT).show();
+    override fun onEventClick(event: WeekViewEvent, eventRect: RectF) {
+        Toast.makeText(this, "Clicked " + event.name, Toast.LENGTH_SHORT).show()
     }
 
-    @Override
-    public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
-        Toast.makeText(this, "Long pressed event: " + event.getName(), Toast.LENGTH_SHORT).show();
+    override fun onEventLongPress(event: WeekViewEvent, eventRect: RectF) {
+        Toast.makeText(this, "Long pressed event: " + event.name, Toast.LENGTH_SHORT).show()
     }
 
-    @Override
-    public void onEmptyViewLongPress(Calendar time) {
-        Toast.makeText(this, "Empty view long pressed: " + getEventTitle(time), Toast.LENGTH_SHORT).show();
+    override fun onEmptyViewLongPress(time: Calendar) {
+        Toast.makeText(this, "Empty view long pressed: " + getEventTitle(time), Toast.LENGTH_SHORT).show()
     }
 
-    public WeekView getWeekView() {
-        return mWeekView;
+    override fun onEmptyViewClicked(date: Calendar) {
+        Toast.makeText(this, "Empty view" + " clicked: " + getEventTitle(date), Toast.LENGTH_SHORT).show()
     }
 
-    @Override
-    public void onEmptyViewClicked(Calendar date) {
-        Toast.makeText(this, "Empty view" + " clicked: " + getEventTitle(date), Toast.LENGTH_SHORT).show();
+    override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>? {
+        return null
     }
 
-    @Override
-    public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
-        return null;
+    override fun onAddEventClicked(startTime: Calendar, endTime: Calendar) {
+        Toast.makeText(this, "Add event clicked.", Toast.LENGTH_SHORT).show()
     }
 
-    @Override
-    public void onAddEventClicked(Calendar startTime, Calendar endTime) {
-        Toast.makeText(this, "Add event clicked.", Toast.LENGTH_SHORT).show();
+    override fun onDrop(view: View, date: Calendar) {
+        Toast.makeText(this, "View dropped to " + date.toString(), Toast.LENGTH_SHORT).show()
     }
 
-    @Override
-    public void onDrop(View view, Calendar date) {
-        Toast.makeText(this, "View dropped to " + date.toString(), Toast.LENGTH_SHORT).show();
+    companion object {
+        val TYPE_DAY_VIEW = 1
+        val TYPE_THREE_DAY_VIEW = 2
+        val TYPE_WEEK_VIEW = 3
     }
 }

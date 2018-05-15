@@ -1,44 +1,30 @@
-package com.alamkanak.weekview;
+package com.alamkanak.weekview
 
-import java.util.Calendar;
-import java.util.List;
+import java.util.*
 
-public class MonthLoader implements WeekViewLoader {
+class MonthLoader(var onMonthChangeListener: MonthChangeListener?) : WeekViewLoader {
 
-    private MonthChangeListener mOnMonthChangeListener;
-
-    public MonthLoader(MonthChangeListener listener) {
-        this.mOnMonthChangeListener = listener;
+    override fun toWeekViewPeriodIndex(instance: Calendar): Double {
+        return (instance.get(Calendar.YEAR) * 12).toDouble() + instance.get(Calendar.MONTH).toDouble() + (instance.get(Calendar.DAY_OF_MONTH) - 1) / 30.0
     }
 
-    @Override
-    public double toWeekViewPeriodIndex(Calendar instance) {
-        return instance.get(Calendar.YEAR) * 12 + instance.get(Calendar.MONTH) + (instance.get(Calendar.DAY_OF_MONTH) - 1) / 30.0;
+    override fun onLoad(periodIndex: Int): MutableList<WeekViewEvent>? {
+        return onMonthChangeListener!!.onMonthChange(periodIndex / 12, periodIndex % 12 + 1)
     }
 
-    @Override
-    public List<? extends WeekViewEvent> onLoad(int periodIndex) {
-        return mOnMonthChangeListener.onMonthChange(periodIndex / 12, periodIndex % 12 + 1);
-    }
-
-    public MonthChangeListener getOnMonthChangeListener() {
-        return mOnMonthChangeListener;
-    }
-
-    public void setOnMonthChangeListener(MonthChangeListener onMonthChangeListener) {
-        this.mOnMonthChangeListener = onMonthChangeListener;
-    }
-
-    public interface MonthChangeListener {
+    interface MonthChangeListener {
         /**
-         * <p>Very important interface, it's the base to load events in the calendar.
-         * This method is called three times: once to load the previous month, once to load the next month and once to load the current month.</p>
-         * <strong>That's why you can have three times the same event at the same place if you mess up with the configuration</strong>
+         *
+         * Very important interface, it's the base to load events in the calendar.
+         * This method is called three times: once to load the previous month, once to load the next month and once to load the current month.
+         * **That's why you can have three times the same event at the same place if you mess up with the configuration**
          *
          * @param newYear  : year of the events required by the view.
-         * @param newMonth : <p>month of the events required by the view </p><strong>1 based (not like JAVA API) : January = 1 and December = 12</strong>.
-         * @return a list of the events happening <strong>during the specified month</strong>.
+         * @param newMonth :
+         *
+         *month of the events required by the view **1 based (not like JAVA API) : January = 1 and December = 12**.
+         * @return a list of the events happening **during the specified month**.
          */
-        List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth);
+        fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>?
     }
 }

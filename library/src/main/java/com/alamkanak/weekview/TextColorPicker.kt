@@ -1,10 +1,10 @@
-package com.alamkanak.weekview;
+package com.alamkanak.weekview
 
-import android.support.annotation.ColorInt;
+import android.support.annotation.ColorInt
 
-public interface TextColorPicker {
+interface TextColorPicker {
 
     @ColorInt
-    int getTextColor(WeekViewEvent event);
+    fun getTextColor(event: WeekViewEvent): Int
 
 }
